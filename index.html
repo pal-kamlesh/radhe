@@ -1748,10 +1748,13 @@
             contactForm.addEventListener('submit', function (e) {
                 e.preventDefault();
 
-                const name = document.getElementById('name').value.trim();
-                const email = document.getElementById('email').value.trim();
+                const name    = document.getElementById('name').value.trim();
+                const email   = document.getElementById('email').value.trim();
+                const phone   = document.getElementById('phone').value.trim();
+                const service = document.getElementById('service').value;
                 const message = document.getElementById('message').value.trim();
 
+                // Validation
                 if (!name || !email || !message) {
                     formStatus.innerHTML =
                         '<span style="color:#d9534f;"><i class="fas fa-exclamation-circle"></i> Please fill in all required fields.</span>';
@@ -1764,18 +1767,30 @@
                     return;
                 }
 
-                // Simulate sending
+                // Show redirecting status
                 formStatus.innerHTML =
-                    '<span style="color:var(--gold);"><i class="fas fa-spinner fa-spin"></i> Sending...</span>';
+                    '<span style="color:var(--gold);"><i class="fas fa-spinner fa-spin"></i> Opening WhatsApp...</span>';
+
+                // Build WhatsApp message (plain text, no emojis - max compatibility)
+                let waText = "*New Enquiry - Radhe Account & Co.*\n";
+                waText += "--------------------------------\n";
+                waText += "*Name:*    " + name + "\n";
+                waText += "*Email:*   " + email + "\n";
+                if (phone)   waText += "*Phone:*   " + phone + "\n";
+                if (service) waText += "*Service:* " + service + "\n";
+                waText += "--------------------------------\n";
+                waText += "*Message:*\n" + message;
+
+                const encodedText = encodeURIComponent(waText);
+                const waURL = `https://wa.me/916351343956?text=${encodedText}`;
 
                 setTimeout(() => {
+                    window.open(waURL, '_blank');
                     formStatus.innerHTML =
-                        '<span style="color:#28a745;"><i class="fas fa-check-circle"></i> Thank you! We\'ll get back to you shortly.</span>';
+                        '<span style="color:#28a745;"><i class="fas fa-check-circle"></i> WhatsApp opened! We\'ll reply shortly.</span>';
                     contactForm.reset();
-                    setTimeout(() => {
-                        formStatus.innerHTML = '';
-                    }, 6000);
-                }, 1500);
+                    setTimeout(() => { formStatus.innerHTML = ''; }, 6000);
+                }, 800);
             });
 
             // ---- Smooth anchor scroll (for all internal links) ----
